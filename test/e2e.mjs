@@ -13,11 +13,10 @@ import { fileURLToPath } from 'node:url';
 const { chromium } = createRequire(import.meta.url)('playwright');
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const extPath = path.join(root, 'extension');
-const page_html = fs.readFileSync(path.join(root, 'test', 'mock-chaturbate.html'));
-
-const server = http.createServer((_req, res) => {
+const server = http.createServer((req, res) => {
+  const name = req.url.startsWith('/whatsapp') ? 'mock-whatsapp.html' : 'mock-chaturbate.html';
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-  res.end(page_html);
+  res.end(fs.readFileSync(path.join(root, 'test', name)));
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const base = `http://127.0.0.1:${server.address().port}/`;
@@ -109,6 +108,34 @@ try {
     check(true, `${mode}: после включения перевод догоняет`);
 
     await page.screenshot({ path: path.join(root, 'test', `screenshot-${mode}.png`) });
+    await page.close();
+  }
+
+  // WhatsApp Web
+  {
+    const page = await ctx.newPage();
+    await page.goto(base + 'whatsapp');
+    await page.waitForSelector('.ct-tr', { timeout: 5000 });
+    await page.waitForTimeout(300);
+    const trs = await page.$$eval('.ct-tr', (els) => els.map((e) => e.textContent));
+    check(
+      trs.length === 2 && trs.includes('[RU] Hey! Are you free tonight?') && trs.includes('[RU] Great, see you at 8 then'),
+      `whatsapp: переведены только входящие текстовые (переводов: ${trs.length})`
+    );
+    const outTr = await page.$$eval('.message-out .ct-tr', (e) => e.length);
+    check(outTr === 0, 'whatsapp: свои сообщения не переводятся');
+    await page.evaluate(() => window.addMessage('Did you get my photo?'));
+    await page.waitForFunction(() =>
+      [...document.querySelectorAll('.ct-tr')].some((e) => e.textContent === '[RU] Did you get my photo?')
+    );
+    check(true, 'whatsapp: новое входящее переведено');
+    const panel = page.locator('#chat-translator-panel');
+    await panel.locator('textarea').fill('Да, получила');
+    await panel.locator('button.main').click();
+    await page.waitForFunction(() => document.querySelector('footer [contenteditable]').textContent.length > 0);
+    const txt = await page.textContent('footer [contenteditable]');
+    check(txt === '[EN] Да, получила', `whatsapp: ответ вставлен в поле внизу («${txt}»)`);
+    await page.screenshot({ path: path.join(root, 'test', 'screenshot-whatsapp.png') });
     await page.close();
   }
 

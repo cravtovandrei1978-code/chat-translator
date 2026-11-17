@@ -7,13 +7,12 @@
   CT.started = true;
 
   const DONE = 'data-ct-done'; // 'pending' | 'ok' | 'same' | 'skip' | 'err'
-  const INITIAL_LIMIT = 30; // при открытии страницы переводим только последние N сообщений
+  const INITIAL_LIMIT = 30; // за один раз переводим не больше последних N сообщений
   const BATCH = 20;
 
   let settings = null;
   let lastPartnerLang = null; // язык последнего входящего сообщения (не русского)
   let lastField = null; // последнее поле ввода сайта, куда кликал человек
-  let firstScan = true;
   let scanTimer = null;
   let panel = null;
   let contextDead = false;
@@ -108,11 +107,11 @@
       fresh.push({ el, text, anchor });
     });
     let todo = fresh;
-    if (firstScan && fresh.length > INITIAL_LIMIT) {
+    // При открытии страницы или переключении чата не переводим всю историю, только последние N.
+    if (fresh.length > INITIAL_LIMIT) {
       fresh.slice(0, fresh.length - INITIAL_LIMIT).forEach((c) => c.el.setAttribute(DONE, 'skip'));
       todo = fresh.slice(-INITIAL_LIMIT);
     }
-    firstScan = false;
     if (!todo.length) return;
     todo.forEach((c) => c.el.setAttribute(DONE, 'pending'));
     translateMessages(todo);

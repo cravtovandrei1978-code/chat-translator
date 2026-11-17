@@ -3,13 +3,15 @@
   "name": "Chat Translator",
   "short_name": "ChatTranslator",
   "version": "0.1.0",
-  "description": "Переводит сообщения веб-чатов на русский и помогает отвечать на языке собеседника.",
+  "description": "Переводит сообщения веб-чатов (Chaturbate, WhatsApp Web) на русский и помогает отвечать на языке собеседника.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "host_permissions": [
     "https://api-free.deepl.com/*",
     "https://api.deepl.com/*",
@@ -25,17 +27,21 @@
       "matches": [
         "https://chaturbate.com/*",
         "https://*.chaturbate.com/*",
+        "https://web.whatsapp.com/*",
         "http://localhost/*",
         "http://127.0.0.1/*"
       ],
       "js": [
         "content/namespace.js",
         "content/adapters/chaturbate.js",
+        "content/adapters/whatsapp.js",
         "content/adapters/registry.js",
         "content/ui.js",
         "content/main.js"
       ],
-      "css": ["content/ui.css"],
+      "css": [
+        "content/ui.css"
+      ],
       "run_at": "document_idle",
       "all_frames": false
     }

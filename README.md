@@ -2,7 +2,7 @@
 
 Расширение для Chrome (Manifest V3). Переводит входящие сообщения веб-чата на русский прямо под оригиналом и помогает ответить: пишешь по-русски, перевод вставляется в поле чата. Кнопку «Отправить» на сайте человек нажимает сам.
 
-Первая площадка: Chaturbate. Дальше: Instagram, Skype, Telegram Web, WhatsApp Web.
+Сейчас работает на: Chaturbate, WhatsApp Web (переводятся только входящие). Дальше: Instagram, Skype, Telegram Web.
 
 ## Установка в Chrome
 
@@ -34,7 +34,7 @@
 
 ## Если на сайте перевод не появляется
 
-Сайты меняют вёрстку. Все селекторы Chaturbate собраны в одном месте: объект `SELECTORS` в [`extension/content/adapters/chaturbate.js`](extension/content/adapters/chaturbate.js).
+Сайты меняют вёрстку. Селекторы каждого сайта собраны в одном месте, в объекте `SELECTORS`: [`chaturbate.js`](extension/content/adapters/chaturbate.js), [`whatsapp.js`](extension/content/adapters/whatsapp.js).
 
 1. На сайте нажми F12 → стрелка «выбрать элемент» → кликни по сообщению в чате.
 2. Посмотри `class` или `data-testid` у блока сообщения, текста, поля ввода.
@@ -56,12 +56,14 @@ extension/
     main.js              ядро: следит за чатом, переводит, вставляет ответ
     ui.js / ui.css       панель ответа и вид перевода
     adapters/
-      chaturbate.js      адаптер сайта (селекторы)
+      chaturbate.js      адаптер Chaturbate (селекторы)
+      whatsapp.js        адаптер WhatsApp Web
       registry.js        выбор адаптера по сайту
   popup/                 меню по клику на значок
   options/               страница настроек
 test/
-  mock-chaturbate.html   локальная копия чата для проверки
+  mock-chaturbate.html   локальная копия чата Chaturbate
+  mock-whatsapp.html     локальная копия WhatsApp Web
   e2e.mjs                автотест в Chromium
 ```
 
