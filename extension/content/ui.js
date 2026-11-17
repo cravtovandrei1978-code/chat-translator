@@ -59,7 +59,7 @@
           </div>
           <div class="preview" data-el="preview"></div>
           <div class="status" data-el="status"></div>
-          <div class="hint">Ctrl+Enter — перевести. Отправку в чате нажимаешь сама. Панель можно перетащить за заголовок.</div>
+          <div class="hint">Ctrl+Enter — перевести. Отправляешь ты сам, кнопкой в чате. Панель двигается за заголовок.</div>
         </div>
       </div>`;
     const $ = (name) => root.querySelector(`[data-el="${name}"]`);
