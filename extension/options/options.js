@@ -20,6 +20,7 @@
     $('targetLang').value = s.targetLang;
     $('replyLang').value = s.replyLang;
     $('fallbackReplyLang').value = s.fallbackReplyLang;
+    $('translit').checked = s.translit;
     $('provider').value = s.provider;
     $('key-deepl').value = s.keys.deepl;
     $('key-google').value = s.keys.google;
@@ -36,6 +37,7 @@
         targetLang: $('targetLang').value,
         replyLang: $('replyLang').value,
         fallbackReplyLang: $('fallbackReplyLang').value,
+        translit: $('translit').checked,
         provider: $('provider').value,
         claudeModel: $('claudeModel').value.trim() || 'claude-opus-5-5',
         keys: {

@@ -153,15 +153,21 @@
   async function onTranslate(text) {
     const target = replyTarget();
     panel.setStatus('Перевожу…');
+    let source = settings.targetLang;
+    let note = '';
+    if (settings.translit && CT.looksLikeTranslit(text)) {
+      text = CT.translitToCyrillic(text);
+      note = `Понял как: «${text}»\n`;
+    }
     try {
-      const [r] = await send('translate', { texts: [text], target, source: settings.targetLang });
-      panel.setPreview(r.text);
+      const [r] = await send('translate', { texts: [text], target, source });
+      panel.setPreview(note + r.text);
       const field = adapter.findInput(document) || (lastField && lastField.isConnected ? lastField : null);
       if (!field) {
         panel.setStatus('Поле чата не найдено. Кликни в поле чата и нажми ещё раз (или скопируй перевод).', true);
         return;
       }
-      CT.insertIntoField(field, r.text);
+      await CT.insertIntoField(field, r.text);
       panel.clearInput();
       panel.setStatus(`Вставлено (${target.toUpperCase()}). Проверь и нажми «Отправить» в чате.`);
     } catch (e) {

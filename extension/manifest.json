@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Chat Translator",
   "short_name": "ChatTranslator",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Переводит сообщения веб-чатов (Chaturbate, WhatsApp Web) на русский и помогает отвечать на языке собеседника.",
   "icons": {
     "16": "icons/icon16.png",
@@ -36,6 +36,7 @@
         "content/adapters/chaturbate.js",
         "content/adapters/whatsapp.js",
         "content/adapters/registry.js",
+        "content/translit.js",
         "content/ui.js",
         "content/main.js"
       ],

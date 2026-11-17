@@ -7,6 +7,7 @@ export const DEFAULT_SETTINGS = {
   targetLang: 'ru', // на какой язык переводим входящие
   replyLang: 'auto', // на какой язык переводим ответ; 'auto' = язык последнего входящего
   fallbackReplyLang: 'en', // если язык собеседника ещё неизвестен
+  translit: true, // ответ, написанный латиницей, сначала переводим транслитом в кириллицу
   keys: { deepl: '', google: '', claude: '' },
   claudeModel: 'claude-opus-5-5',
 };

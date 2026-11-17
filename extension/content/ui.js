@@ -150,7 +150,7 @@
   };
 
   // Вставка текста в поле ввода сайта так, чтобы сайт «увидел» изменение.
-  CT.insertIntoField = function (el, text) {
+  CT.insertIntoField = async function (el, text) {
     el.focus();
     if (el.isContentEditable) {
       const sel = window.getSelection();
@@ -159,7 +159,9 @@
       sel.removeAllRanges();
       sel.addRange(range);
       const ok = document.execCommand('insertText', false, text);
-      if (!ok || el.textContent !== text) {
+      // Редакторы вроде WhatsApp (Lexical) обновляют поле не сразу — ждём, и только если пусто, вставляем вручную.
+      if (ok) await new Promise((r) => setTimeout(r, 150));
+      if (!ok || !el.textContent.trim()) {
         el.textContent = text;
         el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text }));
       }

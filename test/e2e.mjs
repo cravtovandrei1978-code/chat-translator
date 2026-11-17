@@ -114,6 +114,8 @@ try {
   // WhatsApp Web
   {
     const page = await ctx.newPage();
+    page.on('console', (m) => m.type() === 'error' && console.log('  console:', m.text()));
+    page.on('pageerror', (e) => console.log('  pageerror:', e.message));
     await page.goto(base + 'whatsapp');
     await page.waitForSelector('.ct-tr', { timeout: 5000 });
     await page.waitForTimeout(300);
@@ -134,7 +136,13 @@ try {
     await panel.locator('button.main').click();
     await page.waitForFunction(() => document.querySelector('footer [contenteditable]').textContent.length > 0);
     const txt = await page.textContent('footer [contenteditable]');
-    check(txt === '[EN] Да, получила', `whatsapp: ответ вставлен в поле внизу («${txt}»)`);
+    check(txt === '[EN] Да, получила', `whatsapp: ответ вставлен в поле внизу один раз («${txt}»)`);
+    await panel.locator('[data-el="go"]:not([disabled])').waitFor();
+    await panel.locator('textarea').fill('sei4as moje6i?');
+    await panel.locator('button.main').click();
+    await page.waitForFunction(() => document.querySelector('footer [contenteditable]').textContent.includes('сейчас'));
+    const txt2 = await page.textContent('footer [contenteditable]');
+    check(txt2 === '[EN] сейчас можешь?', `транслит: «sei4as moje6i?» понят как «${txt2}»`);
     await page.screenshot({ path: path.join(root, 'test', 'screenshot-whatsapp.png') });
     await page.close();
   }
