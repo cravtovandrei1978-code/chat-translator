@@ -186,6 +186,11 @@
   }
 
   function applySettings() {
+    if (adapter.generic) {
+      adapter.rule = (settings.siteRules || {})[location.host] || null;
+      panel.showPicker(true);
+      if (!adapter.rule) panel.setStatus('Нажми 🎯 и кликни по сообщению собеседника, чтобы показать, что переводить.');
+    }
     document.documentElement.classList.toggle('ct-off', !settings.enabled);
     panel.setEnabled(settings.enabled);
     panel.setReplyLang(settings.replyLang);
@@ -205,8 +210,35 @@
     });
   });
 
+  // Универсальный режим: человек показывает кликом, где сообщения.
+  function onPick() {
+    panel.setStatus('Кликни по любому сообщению собеседника на странице…');
+    const handler = async (e) => {
+      if (panel.contains(e.target)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      document.removeEventListener('click', handler, true);
+      const sel = CT.selectorFromClick(e.target);
+      if (!sel) {
+        panel.setStatus('Не получилось найти список сообщений. Попробуй кликнуть по тексту другого сообщения.', true);
+        return;
+      }
+      const siteRules = { ...(settings.siteRules || {}), [location.host]: { message: sel } };
+      document.querySelectorAll(`[${DONE}]`).forEach((el) => el.removeAttribute(DONE));
+      settings = await send('saveSettings', { patch: { siteRules } });
+      applySettings();
+      panel.setStatus(`Готово: нашёл сообщений — ${document.querySelectorAll(sel).length}. Перевожу последние.`);
+    };
+    document.addEventListener('click', handler, true);
+  }
+
+  // Всплывающее меню спрашивает, работает ли расширение на этой вкладке.
+  chrome.runtime.onMessage.addListener((msg, _s, reply) => {
+    if (msg && msg.type === 'ping') reply({ adapter: adapter.name, generic: !!adapter.generic });
+  });
+
   async function start() {
-    panel = CT.createPanel({ onTranslate, onToggle, onReplyLangChange, onSettings: () => send('openOptions') });
+    panel = CT.createPanel({ onTranslate, onToggle, onReplyLangChange, onSettings: () => send('openOptions'), onPick });
     try {
       settings = await send('getSettings');
     } catch (e) {

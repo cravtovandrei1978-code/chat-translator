@@ -16,7 +16,7 @@ const VARIANTS = {
   store: {
     dropMatches: [/chaturbate\.com/, /localhost/, /127\.0\.0\.1/],
     dropFiles: ['content/adapters/chaturbate.js'],
-    description: 'Переводит сообщения в WhatsApp Web на ваш язык и помогает отвечать на языке собеседника.',
+    description: 'Переводит сообщения в веб-мессенджерах (WhatsApp, Telegram, Discord и любой сайт) и помогает ответить на языке собеседника.',
   },
   full: { dropMatches: [], dropFiles: [], description: manifest.description },
 };

@@ -4,8 +4,8 @@
 Chat Translator — переводчик чатов
 
 ## Краткое описание (до 132 символов)
-RU: Перевод сообщений WhatsApp Web на ваш язык прямо под оригиналом и ответ на языке собеседника. DeepL, Google или Claude.
-EN: Translate WhatsApp Web messages right under the original and reply in your contact's language. Uses DeepL, Google or Claude.
+RU: Перевод сообщений в WhatsApp, Telegram, Discord и любом веб-чате прямо под оригиналом и ответ на языке собеседника.
+EN: Translate messages in WhatsApp, Telegram, Discord or any web chat right under the original and reply in your contact's language.
 
 ## Полное описание (RU)
 Переписываетесь с людьми, которые говорят на другом языке? Chat Translator переводит каждое входящее сообщение прямо под оригиналом, а ответ можно написать по-русски — расширение переведёт его и вставит в поле чата. Отправку вы нажимаете сами.
@@ -20,7 +20,7 @@ EN: Translate WhatsApp Web messages right under the original and reply in your c
 
 Конфиденциальность: своего сервера нет. Текст уходит только в выбранный вами сервис перевода, ключ и настройки хранятся в вашем браузере.
 
-Сейчас поддерживается WhatsApp Web. Скоро: Telegram Web, Instagram, Skype.
+Готовая поддержка: WhatsApp Web, Telegram Web, Discord. На любом другом сайте с чатом (Instagram, Messenger и т.д.) перевод включается одной кнопкой: покажите кликом, где сообщения собеседника, и расширение запомнит.
 
 ## Full description (EN)
 Chatting with people who speak another language? Chat Translator translates every incoming message right under the original, and lets you write your reply in your own language — it translates it and puts it into the chat box. You press Send yourself.
@@ -35,14 +35,15 @@ Features:
 
 Privacy: no server of our own. Text goes only to the translation service you choose; your key and settings stay in your browser.
 
-Currently supports WhatsApp Web. Coming soon: Telegram Web, Instagram, Skype.
+Built-in support: WhatsApp Web, Telegram Web, Discord. On any other chat site (Instagram, Messenger, etc.) turn it on with one click and show which messages to translate — it remembers.
 
 ## Категория
 Communication / Общение
 
 ## Обоснование разрешений (поле «Permission justification»)
 - storage — хранить настройки, ключ API и кэш переводов локально.
-- host https://web.whatsapp.com/* — читать входящие сообщения и вставлять перевод ответа в поле чата.
+- scripting, activeTab, optional host permissions — только когда пользователь сам нажимает «Включить перевод на этом сайте», расширение запрашивает доступ к этому одному сайту и запускает на нём перевод.
+- host web.whatsapp.com, web.telegram.org, discord.com — читать входящие сообщения и вставлять перевод ответа в поле чата.
 - host api-free.deepl.com, api.deepl.com, translation.googleapis.com, api.anthropic.com — отправлять текст в выбранный пользователем сервис перевода.
 - Удалённый код не используется.
 

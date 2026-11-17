@@ -36,7 +36,7 @@
     .hint { font-size: 11px; color: #8a93a5; }
   `;
 
-  CT.createPanel = function ({ onTranslate, onToggle, onReplyLangChange, onSettings }) {
+  CT.createPanel = function ({ onTranslate, onToggle, onReplyLangChange, onSettings, onPick }) {
     const host = document.createElement('div');
     host.id = 'chat-translator-panel';
     const root = host.attachShadow({ mode: 'open' });
@@ -46,6 +46,7 @@
         <div class="head">
           <span class="title">Переводчик</span>
           <span class="lang" data-el="langInfo"></span>
+          <button class="icon" data-el="pick" title="Показать, где сообщения собеседника" hidden>🎯</button>
           <button class="icon" data-el="settings" title="Настройки">⚙</button>
           <button class="icon" data-el="power" title="Включить/выключить перевод">⏻</button>
           <button class="icon" data-el="collapse" title="Свернуть">–</button>
@@ -94,6 +95,7 @@
     $('collapse').addEventListener('click', () => box.classList.toggle('collapsed'));
     $('power').addEventListener('click', () => onToggle());
     $('settings').addEventListener('click', () => onSettings());
+    $('pick').addEventListener('click', () => onPick && onPick());
     $('replyLang').addEventListener('change', () => onReplyLangChange($('replyLang').value));
 
     // Перетаскивание панели за заголовок
@@ -138,6 +140,9 @@
       },
       setLangInfo(text) {
         $('langInfo').textContent = text;
+      },
+      showPicker(on) {
+        $('pick').hidden = !on;
       },
       setEnabled(on) {
         $('power').style.opacity = on ? '1' : '.45';

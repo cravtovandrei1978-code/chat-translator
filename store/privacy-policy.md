@@ -4,7 +4,7 @@ _Last updated / Обновлено: 18 November 2026_
 
 ## English
 
-Chat Translator is a browser extension that translates chat messages on supported websites (currently WhatsApp Web) and helps you reply in your contact's language.
+Chat Translator is a browser extension that translates chat messages on supported websites (WhatsApp Web, Telegram Web, Discord, and any other site where you turn it on yourself) and helps you reply in your contact's language.
 
 **What the extension reads.** On supported chat pages only, the extension reads the text of incoming chat messages and the text you type into its reply panel. It does not read other websites, cookies, passwords, contacts or files.
 
@@ -18,7 +18,7 @@ Chat Translator is a browser extension that translates chat messages on supporte
 
 ## Русский
 
-Chat Translator — расширение для браузера, которое переводит сообщения чатов на поддерживаемых сайтах (сейчас WhatsApp Web) и помогает отвечать на языке собеседника.
+Chat Translator — расширение для браузера, которое переводит сообщения чатов на поддерживаемых сайтах (WhatsApp Web, Telegram Web, Discord и любые другие сайты, где вы сами его включили) и помогает отвечать на языке собеседника.
 
 **Что читает расширение.** Только на страницах поддерживаемых чатов: текст входящих сообщений и текст, который вы пишете в его панели ответа. Другие сайты, cookies, пароли, контакты и файлы оно не читает.
 

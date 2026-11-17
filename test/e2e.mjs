@@ -14,7 +14,13 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const extPath = path.join(root, 'extension');
 const server = http.createServer((req, res) => {
-  const name = req.url.startsWith('/whatsapp') ? 'mock-whatsapp.html' : 'mock-chaturbate.html';
+  const name = req.url.startsWith('/whatsapp')
+    ? 'mock-whatsapp.html'
+    : req.url.startsWith('/telegram')
+      ? 'mock-telegram.html'
+      : req.url.startsWith('/generic')
+        ? 'mock-generic.html'
+        : 'mock-chaturbate.html';
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
   res.end(fs.readFileSync(path.join(root, 'test', name)));
 });
@@ -144,6 +150,54 @@ try {
     const txt2 = await page.textContent('footer [contenteditable]');
     check(txt2 === '[EN] сейчас можешь?', `транслит: «sei4as moje6i?» понят как «${txt2}»`);
     await page.screenshot({ path: path.join(root, 'test', 'screenshot-whatsapp.png') });
+    await page.close();
+  }
+
+  // Telegram Web
+  {
+    const page = await ctx.newPage();
+    await page.goto(base + 'telegram');
+    await page.waitForSelector('.ct-tr', { timeout: 5000 });
+    await page.waitForTimeout(300);
+    const trs = await page.$$eval('.ct-tr', (els) => els.map((e) => e.textContent));
+    check(
+      trs.length === 2 && trs.includes('[RU] Hello from Telegram!'),
+      `telegram: переведены только входящие, без времени (${JSON.stringify(trs)})`
+    );
+    const panel = page.locator('#chat-translator-panel');
+    await panel.locator('textarea').fill('Да, очень');
+    await panel.locator('button.main').click();
+    await page.waitForFunction(() => document.querySelector('.input-message-input').textContent.length > 0);
+    const txt = await page.textContent('.input-message-input:not(.input-field-input-fake)');
+    check(txt === '[EN] Да, очень', `telegram: ответ вставлен в настоящее поле («${txt}»)`);
+    await page.close();
+  }
+
+  // Универсальный режим: показываем сообщение кликом
+  {
+    const page = await ctx.newPage();
+    await page.goto(base + 'generic');
+    const panel = page.locator('#chat-translator-panel');
+    await panel.locator('[data-el="pick"]').waitFor();
+    check(await page.$$eval('.ct-tr', (e) => e.length) === 0, 'любой сайт: до выбора ничего не переводится');
+    await panel.locator('[data-el="pick"]').click();
+    await page.click('#list > div:nth-child(2) span');
+    await page.waitForFunction(() => document.querySelectorAll('.ct-tr').length === 3);
+    const trs = await page.$$eval('.ct-tr', (els) => els.map((e) => e.textContent));
+    check(trs.includes('[RU] Sam Are you there?'), `любой сайт: после клика переведены все 3 (${trs[1]})`);
+    await page.evaluate(() => window.addMessage('New message here'));
+    await page.waitForFunction(() => document.querySelectorAll('.ct-tr').length === 4);
+    check(true, 'любой сайт: новые сообщения переводятся');
+    await page.click('#box');
+    await panel.locator('textarea').fill('привет');
+    await panel.locator('button.main').click();
+    await page.waitForFunction(() => document.getElementById('box').value.length > 0);
+    check((await page.inputValue('#box')) === '[EN] привет', 'любой сайт: ответ вставлен в поле, где был курсор');
+    // правило запомнилось после перезагрузки
+    await page.reload();
+    await page.waitForFunction(() => document.querySelectorAll('.ct-tr').length === 3);
+    check(true, 'любой сайт: выбор запомнился после перезагрузки');
+    await page.screenshot({ path: path.join(root, 'test', 'screenshot-generic.png') });
     await page.close();
   }
 
