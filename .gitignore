@@ -2,3 +2,4 @@ node_modules/
 test/screenshot-*.png
 *.zip
 .env
+dist/
