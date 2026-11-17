@@ -1,11 +1,17 @@
 // Адаптер для WhatsApp Web (web.whatsapp.com).
 //
 // ВСЕ СЕЛЕКТОРЫ — В ОБЪЕКТЕ SELECTORS. Если WhatsApp поменял вёрстку, правь только его.
-// Переводим только входящие сообщения (.message-in), свои (.message-out) не трогаем.
+// Переводим только входящие сообщения (они прижаты к левому краю), свои (справа) не трогаем.
+// Вёрстка WhatsApp на ноябрь 2026: сообщение = div[data-testid^="conv-msg-"][data-id],
+// внутри div.copyable-text[data-pre-plain-text] > span.selectable-text. Классов message-in/out больше нет.
 (function () {
   const SELECTORS = {
-    // Блок входящего сообщения.
-    message: ['div.message-in', '[data-testid="msg-container"].message-in'],
+    // Блок сообщения (входящего или своего — какое из них, решаем по положению на экране).
+    message: ['[data-testid^="conv-msg-"][data-id]', 'div.message-in, div.message-out'],
+    // Пузырь сообщения внутри блока (по нему определяем, слева он или справа).
+    bubble: ['[data-testid="msg-container"]'],
+    // Лента сообщений.
+    panel: ['[data-testid="conversation-panel-messages"]', '#main'],
     // Обёртка текста. У основного текста есть атрибут data-pre-plain-text («[12:00, 18.11.2026] Имя: »).
     textWrap: ['.copyable-text[data-pre-plain-text]'],
     // Сам текст внутри обёртки.
@@ -29,6 +35,18 @@
     return null;
   }
 
+  // Своё сообщение = пузырь прижат к правому краю ленты.
+  function isOutgoing(msgEl) {
+    if (msgEl.matches('.message-out') || msgEl.querySelector('.message-out')) return true;
+    if (msgEl.matches('.message-in') || msgEl.querySelector('.message-in')) return false;
+    const bubble = first(msgEl, SELECTORS.bubble) || msgEl;
+    const panel = msgEl.closest(SELECTORS.panel.join(',')) || document.body;
+    const b = bubble.getBoundingClientRect();
+    const p = panel.getBoundingClientRect();
+    if (!b.width) return false;
+    return b.left + b.width / 2 > p.left + p.width / 2;
+  }
+
   window.ChatTranslator.adapters.push({
     id: 'whatsapp',
     name: 'WhatsApp Web',
@@ -49,7 +67,8 @@
     },
 
     shouldSkip(msgEl) {
-      return SELECTORS.skip.some((s) => msgEl.querySelector(s));
+      if (SELECTORS.skip.some((s) => msgEl.querySelector(s))) return true;
+      return isOutgoing(msgEl);
     },
 
     extract(msgEl) {

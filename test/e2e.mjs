@@ -122,7 +122,7 @@ try {
       trs.length === 2 && trs.includes('[RU] Hey! Are you free tonight?') && trs.includes('[RU] Great, see you at 8 then'),
       `whatsapp: переведены только входящие текстовые (переводов: ${trs.length})`
     );
-    const outTr = await page.$$eval('.message-out .ct-tr', (e) => e.length);
+    const outTr = await page.$$eval('[data-dir="out"] .ct-tr', (e) => e.length);
     check(outTr === 0, 'whatsapp: свои сообщения не переводятся');
     await page.evaluate(() => window.addMessage('Did you get my photo?'));
     await page.waitForFunction(() =>

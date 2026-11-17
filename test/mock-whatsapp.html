@@ -12,9 +12,10 @@
     #main { flex: 1; display: flex; flex-direction: column; }
     header { background: #f0f2f5; padding: 10px; }
     .msgs { flex: 1; overflow-y: auto; padding: 12px 8%; display: flex; flex-direction: column; gap: 4px; }
-    .message-in, .message-out { max-width: 65%; padding: 6px 8px; border-radius: 8px; box-shadow: 0 1px .5px rgba(0,0,0,.13); }
-    .message-in { background: #fff; align-self: flex-start; }
-    .message-out { background: #d9fdd3; align-self: flex-end; }
+    #list > [role=row] { width: 100%; }
+    .bubble { max-width: 65%; padding: 6px 8px; border-radius: 8px; box-shadow: 0 1px .5px rgba(0,0,0,.13); }
+    .b-in { background: #fff; }
+    .b-out { background: #d9fdd3; }
     footer { background: #f0f2f5; padding: 8px; display: flex; gap: 8px; }
     footer [contenteditable] { flex: 1; background: #fff; border-radius: 8px; padding: 8px; min-height: 20px; }
   </style>
@@ -24,7 +25,7 @@
     <div id="side">Чаты<br><button id="add">+ входящее</button></div>
     <div id="main">
       <header>Alex</header>
-      <div class="msgs" id="list"></div>
+      <div class="msgs" id="list" data-testid="conversation-panel-messages"></div>
       <footer>
         <div contenteditable="true" role="textbox" data-tab="10" data-testid="conversation-compose-box-input"></div>
         <button id="send">Send</button>
@@ -33,21 +34,31 @@
   </div>
   <script>
     const list = document.getElementById('list');
-    // Структура как у WhatsApp: div.message-in > ... > div.copyable-text[data-pre-plain-text] > span.selectable-text > span
+    // Структура как у WhatsApp (ноябрь 2026): классов message-in/out нет,
+    // входящее/своё отличается только положением пузыря (слева/справа).
+    let seq = 0;
     function addMessage(text, dir = 'in', kind = 'text') {
       const row = document.createElement('div');
       row.setAttribute('role', 'row');
       const msg = document.createElement('div');
-      msg.className = 'message-' + dir + ' focusable-list-item';
+      msg.setAttribute('data-testid', 'conv-msg-' + (++seq));
+      msg.setAttribute('data-id', 'MSG' + seq);
+      msg.dataset.dir = dir; // только для теста, у WhatsApp этого атрибута нет
+      msg.style.display = 'flex';
+      msg.style.justifyContent = dir === 'in' ? 'flex-start' : 'flex-end';
+      const bubble = document.createElement('div');
+      bubble.setAttribute('data-testid', 'msg-container');
+      bubble.className = 'bubble ' + (dir === 'in' ? 'b-in' : 'b-out');
       if (kind === 'text') {
-        msg.innerHTML =
-          '<div class="_amk6"><div class="copyable-text" data-pre-plain-text="[22:10, 17.11.2026] Alex: ">' +
-          '<div class="_akbu"><span dir="ltr" class="selectable-text copyable-text"><span></span></span></div></div>' +
-          '<div class="_amk7"><span>22:10</span></div></div>';
-        msg.querySelector('.selectable-text > span').textContent = text;
+        bubble.innerHTML =
+          '<div class="copyable-text" data-pre-plain-text="[22:10, 17.11.2026] Alex: ">' +
+          '<div><span dir="ltr" data-testid="selectable-text" class="selectable-text copyable-text"><span></span></span></div></div>' +
+          '<div data-testid="msg-meta"><span>22:10</span></div>';
+        bubble.querySelector('.selectable-text > span').textContent = text;
       } else {
-        msg.innerHTML = '<div><img alt="photo" width="120" height="80"><span>22:11</span></div>';
+        bubble.innerHTML = '<div data-testid="image-thumb"><img alt="photo" width="120" height="80"></div>';
       }
+      msg.appendChild(bubble);
       row.appendChild(msg);
       list.appendChild(row);
       list.scrollTop = list.scrollHeight;
