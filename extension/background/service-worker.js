@@ -35,6 +35,7 @@ const handlers = {
   saveSettings: ({ patch }) => saveSettings(patch),
   clearCache: () => cacheClear(),
   cacheSize: () => cacheSize(),
+  openOptions: () => chrome.runtime.openOptionsPage(),
 };
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
@@ -44,4 +45,9 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     .then((data) => sendResponse({ ok: true, data }))
     .catch((err) => sendResponse({ ok: false, error: err.message || String(err), code: err.code }));
   return true; // ответ придёт асинхронно
+});
+
+// При первой установке сразу открываем настройки, чтобы вставить ключ.
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') chrome.runtime.openOptionsPage();
 });

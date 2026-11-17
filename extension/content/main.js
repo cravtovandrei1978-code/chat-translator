@@ -201,7 +201,7 @@
   });
 
   async function start() {
-    panel = CT.createPanel({ onTranslate, onToggle, onReplyLangChange });
+    panel = CT.createPanel({ onTranslate, onToggle, onReplyLangChange, onSettings: () => send('openOptions') });
     try {
       settings = await send('getSettings');
     } catch (e) {

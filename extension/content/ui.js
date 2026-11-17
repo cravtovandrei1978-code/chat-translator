@@ -36,7 +36,7 @@
     .hint { font-size: 11px; color: #8a93a5; }
   `;
 
-  CT.createPanel = function ({ onTranslate, onToggle, onReplyLangChange }) {
+  CT.createPanel = function ({ onTranslate, onToggle, onReplyLangChange, onSettings }) {
     const host = document.createElement('div');
     host.id = 'chat-translator-panel';
     const root = host.attachShadow({ mode: 'open' });
@@ -46,6 +46,7 @@
         <div class="head">
           <span class="title">Переводчик</span>
           <span class="lang" data-el="langInfo"></span>
+          <button class="icon" data-el="settings" title="Настройки">⚙</button>
           <button class="icon" data-el="power" title="Включить/выключить перевод">⏻</button>
           <button class="icon" data-el="collapse" title="Свернуть">–</button>
         </div>
@@ -92,6 +93,7 @@
     ['keyup', 'keypress'].forEach((t) => $('input').addEventListener(t, (e) => e.stopPropagation()));
     $('collapse').addEventListener('click', () => box.classList.toggle('collapsed'));
     $('power').addEventListener('click', () => onToggle());
+    $('settings').addEventListener('click', () => onSettings());
     $('replyLang').addEventListener('change', () => onReplyLangChange($('replyLang').value));
 
     // Перетаскивание панели за заголовок
