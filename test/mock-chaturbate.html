@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Эта метка включает адаптер Chaturbate на локальной странице -->
+  <meta name="ct-adapter" content="chaturbate">
+  <title>Тестовая копия чата (Chaturbate)</title>
+  <style>
+    body { font: 14px system-ui, sans-serif; margin: 0; background: #0c6a93; color: #222; }
+    .layout { display: flex; gap: 12px; padding: 12px; height: 100vh; box-sizing: border-box; }
+    .video { flex: 1; background: #111; border-radius: 6px; color: #aaa; display: grid; place-items: center; }
+    .chat { width: 380px; background: #fff; border-radius: 6px; display: flex; flex-direction: column; }
+    .msg-list-wrapper-split { flex: 1; overflow-y: auto; padding: 8px; }
+    [data-testid="chat-message"] { padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
+    .username { font-weight: bold; color: #dc5500; margin-right: 4px; }
+    .roomNotice { color: #888; font-style: italic; }
+    .chat-input-container { display: flex; gap: 6px; padding: 8px; border-top: 1px solid #ddd; }
+    .customInput { flex: 1; border: 1px solid #aaa; border-radius: 4px; padding: 6px; min-height: 18px; }
+    .controls { padding: 6px 8px; font-size: 12px; color: #555; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="video">[видео]</div>
+    <div class="chat">
+      <div class="controls">
+        Тест: <button id="add">+ входящее</button>
+        <label><input type="checkbox" id="auto"> авто каждые 3 сек</label>
+      </div>
+      <div class="msg-list-wrapper-split" id="list">
+        <div data-testid="chat-message" class="roomNotice">Welcome to the room! Tip 25 tokens for a song.</div>
+        <div data-testid="chat-message">
+          <span data-testid="chat-message-username" class="username">john_doe</span>
+          <span data-testid="chat-message-text">Hi beautiful, how are you doing today?</span>
+        </div>
+        <div data-testid="chat-message">
+          <span data-testid="chat-message-username" class="username">mike77</span>
+          <span data-testid="chat-message-text">You look amazing 😍</span>
+        </div>
+        <div data-testid="chat-message">
+          <span data-testid="chat-message-username" class="username">tom</span>
+          <span data-testid="chat-message-text">👍👍</span>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <!-- ?input=textarea переключает поле на обычный textarea -->
+        <div id="inputSlot"></div>
+        <button id="send">Send</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const slot = document.getElementById('inputSlot');
+    slot.style.flex = '1';
+    let input;
+    if (params.get('input') === 'textarea') {
+      input = document.createElement('textarea');
+      input.className = 'chat-input';
+      input.style.width = '100%';
+    } else {
+      input = document.createElement('div');
+      input.className = 'customInput';
+      input.contentEditable = 'true';
+    }
+    input.setAttribute('data-testid', 'chat-input');
+    slot.appendChild(input);
+    const readInput = () => (input.isContentEditable ? input.textContent : input.value);
+
+    const list = document.getElementById('list');
+    const SAMPLES = [
+      ['alex_99', 'Where are you from?'],
+      ['carlos', '¿Hablas español?'],
+      ['hans', 'Wie geht es dir?'],
+      ['pierre', 'Tu es très belle ce soir'],
+      ['bob', 'Can you dance for me?'],
+    ];
+    let n = 0;
+    function addMessage(user, text) {
+      const div = document.createElement('div');
+      div.setAttribute('data-testid', 'chat-message');
+      div.innerHTML = '<span data-testid="chat-message-username" class="username"></span><span data-testid="chat-message-text"></span>';
+      div.children[0].textContent = user;
+      div.children[1].textContent = text;
+      list.appendChild(div);
+      list.scrollTop = list.scrollHeight;
+    }
+    window.addMessage = addMessage;
+    document.getElementById('add').onclick = () => { const [u, t] = SAMPLES[n++ % SAMPLES.length]; addMessage(u, t); };
+    let timer = null;
+    document.getElementById('auto').onchange = (e) => {
+      clearInterval(timer);
+      if (e.target.checked) timer = setInterval(() => document.getElementById('add').click(), 3000);
+    };
+    document.getElementById('send').onclick = () => {
+      const t = readInput().trim();
+      if (!t) return;
+      addMessage('me (model)', t);
+      if (input.isContentEditable) input.textContent = ''; else input.value = '';
+    };
+    // "Сайт" запоминает, что видел событие input — как это делают React-сайты
+    window.inputEvents = 0;
+    input.addEventListener('input', () => window.inputEvents++);
+  </script>
+</body>
+</html>

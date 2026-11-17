@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Chat Translator — настройки</title>
+  <link rel="stylesheet" href="../popup/common.css">
+</head>
+<body class="page">
+  <h1>Chat Translator — настройки</h1>
+
+  <section>
+    <h2>Перевод</h2>
+    <label class="row"><input type="checkbox" id="enabled"> Переводить сообщения чата</label>
+    <label>Входящие переводить на
+      <select id="targetLang" data-langs></select>
+    </label>
+    <label>Мой ответ переводить на
+      <select id="replyLang" data-langs data-auto></select>
+    </label>
+    <label>Если язык собеседника ещё неизвестен
+      <select id="fallbackReplyLang" data-langs></select>
+    </label>
+  </section>
+
+  <section>
+    <h2>Сервис перевода</h2>
+    <label>Сервис
+      <select id="provider">
+        <option value="deepl">DeepL (рекомендуется)</option>
+        <option value="google">Google Cloud Translation</option>
+        <option value="claude">Claude (Anthropic)</option>
+        <option value="test">Проверка без интернета (не переводит, только помечает)</option>
+      </select>
+    </label>
+
+    <div data-for="deepl">
+      <label>Ключ DeepL
+        <input type="password" id="key-deepl" autocomplete="off" placeholder="xxxxxxxx-xxxx-…:fx">
+      </label>
+      <p class="hint">Бесплатный ключ (500 000 символов в месяц): deepl.com → API → «Sign up for free». Ключ, который кончается на <code>:fx</code>, — бесплатный.</p>
+    </div>
+    <div data-for="google">
+      <label>Ключ Google Cloud
+        <input type="password" id="key-google" autocomplete="off" placeholder="AIza…">
+      </label>
+      <p class="hint">Google Cloud Console → включить «Cloud Translation API» → Credentials → API key.</p>
+    </div>
+    <div data-for="claude">
+      <label>Ключ Claude
+        <input type="password" id="key-claude" autocomplete="off" placeholder="sk-ant-…">
+      </label>
+      <label>Модель
+        <input type="text" id="claudeModel" placeholder="claude-opus-5-5">
+      </label>
+      <p class="hint">Ключ: console.anthropic.com → API Keys. Для экономии можно указать модель <code>claude-haiku-5-5</code>.</p>
+    </div>
+    <p class="hint">Ключи хранятся только в этом браузере (chrome.storage.local) и отправляются только в выбранный сервис перевода.</p>
+
+    <div class="row">
+      <button id="save" class="primary">Сохранить</button>
+      <button id="test">Проверить перевод</button>
+      <span id="status"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Кэш переводов</h2>
+    <p>Одинаковые сообщения не переводятся повторно. Сейчас в кэше: <b id="cacheSize">…</b></p>
+    <button id="clearCache">Очистить кэш</button>
+  </section>
+
+  <script src="../popup/langs.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
