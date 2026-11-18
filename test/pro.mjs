@@ -1,4 +1,4 @@
-// Тест Pro: поднимает сервер (worker.js) с поддельными Polar и DeepL,
+// Тест Pro: поднимает сервер (worker.js) с поддельными Paddle и DeepL,
 // проверяет лицензию, лимит и перевод через расширение.
 import { createRequire } from 'node:module';
 import http from 'node:http';
@@ -6,26 +6,28 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import worker from '../server/worker.js';
+import worker, { makeLicense } from '../server/worker.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const GOOD = 'GOOD-LICENSE-KEY';
 let failed = 0;
 const check = (c, n) => { console.log(`${c ? '✓' : '✗'} ${n}`); if (!c) failed++; };
 
 const listen = (h) => new Promise((r) => { const s = http.createServer(h); s.listen(0, '127.0.0.1', () => r(s)); });
 const readBody = (req) => new Promise((r) => { let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => r(b)); });
 
-// Поддельные Polar и DeepL
+// Поддельные Paddle и DeepL
 let deeplCalls = 0;
+const SUBS = { sub_good: 'active', sub_old: 'canceled' };
+const TXNS = { txn_good: { status: 'completed', subscription_id: 'sub_good' }, txn_wait: { status: 'ready', subscription_id: null } };
 const fake = await listen(async (req, res) => {
   const body = JSON.parse((await readBody(req)) || '{}');
-  if (req.url.endsWith('/license-keys/validate')) {
-    if (body.key === GOOD && body.organization_id === 'org-1') {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ status: 'granted', expires_at: null }));
-    }
-    res.writeHead(404); return res.end('{}');
+  const send = (code, data) => { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); };
+  if (req.url.startsWith('/subscriptions/') || req.url.startsWith('/transactions/')) {
+    if (req.headers.authorization !== 'Bearer PADDLE-SECRET') return send(403, {});
+    const id = req.url.split('/')[2];
+    if (SUBS[id]) return send(200, { data: { id, status: SUBS[id] } });
+    if (TXNS[id]) return send(200, { data: { id, ...TXNS[id] } });
+    return send(404, {});
   }
   if (req.url === '/v2/translate') {
     deeplCalls++;
@@ -36,7 +38,9 @@ const fake = await listen(async (req, res) => {
   res.writeHead(404); res.end();
 });
 const fakeUrl = `http://127.0.0.1:${fake.address().port}`;
-const env = { POLAR_API: fakeUrl, DEEPL_API: fakeUrl, DEEPL_KEY: 'SECRET', POLAR_ORG_ID: 'org-1', MONTHLY_CHARS: '60' };
+const env = { PADDLE_API: fakeUrl, PADDLE_API_KEY: 'PADDLE-SECRET', LICENSE_SECRET: 'sign-secret', DEEPL_API: fakeUrl, DEEPL_KEY: 'SECRET', MONTHLY_CHARS: '60' };
+const GOOD = await makeLicense(env, 'sub_good');
+const OLD = await makeLicense(env, 'sub_old');
 
 // Сервер Pro (worker.js через http)
 const api = await listen(async (req, res) => {
@@ -50,6 +54,18 @@ const call = async (p, b) => { const r = await fetch(apiUrl + p, { method: 'POST
 try {
   let r = await call('/v1/translate', { license: 'BAD', texts: ['Hi'], target: 'ru' });
   check(r.status === 401, 'сервер: неверный код отклонён');
+  r = await call('/v1/license', { license: 'sub_good.000000000000000000000000' });
+  check(r.status === 401, 'сервер: поддельная подпись отклонена');
+  r = await call('/v1/license', { license: OLD });
+  check(r.status === 401, 'сервер: отменённая подписка отклонена');
+  r = await call('/v1/claim', { transaction_id: 'txn_good' });
+  check(r.data.license === GOOD, 'сервер: после оплаты выдаётся код лицензии');
+  r = await call('/v1/claim', { transaction_id: 'txn_wait' });
+  check(r.status === 404, 'сервер: неоплаченный заказ кода не даёт');
+  for (const p of ['/', '/buy', '/restore', '/terms', '/refund', '/privacy']) {
+    const pg = await fetch(apiUrl + p);
+    check(pg.status === 200 && (await pg.text()).includes('Paddle'), `сайт: страница ${p}`);
+  }
   r = await call('/v1/license', { license: GOOD });
   check(r.status === 200 && r.data.limit === 60, 'сервер: верный код принят');
   r = await call('/v1/translate', { license: GOOD, texts: ['Hello there'], target: 'ru' });
