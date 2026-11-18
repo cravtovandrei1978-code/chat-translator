@@ -34,9 +34,13 @@
     .status { font-size: 12px; color: #5b6577; min-height: 16px; }
     .status.err { color: #c0392b; }
     .hint { font-size: 11px; color: #8a93a5; }
+    button.mic { width: 34px; height: 30px; border: 1px solid #c9d1e0; border-radius: 6px; background: #fff;
+      font-size: 16px; cursor: pointer; padding: 0; }
+    button.mic.on { background: #e74c3c; border-color: #e74c3c; animation: ct-pulse 1s infinite; }
+    @keyframes ct-pulse { 50% { opacity: .55; } }
   `;
 
-  CT.createPanel = function ({ onTranslate, onToggle, onReplyLangChange, onSettings, onPick }) {
+  CT.createPanel = function ({ onTranslate, onToggle, onReplyLangChange, onSettings, onPick, getSpeechLang }) {
     const host = document.createElement('div');
     host.id = 'chat-translator-panel';
     const root = host.attachShadow({ mode: 'open' });
@@ -55,11 +59,12 @@
           <textarea data-el="input" placeholder="Напиши ответ по-русски…"></textarea>
           <div class="row">
             <select style="max-width:140px" data-el="replyLang" title="На какой язык переводить ответ"></select>
+            <button class="mic" data-el="mic" title="Сказать голосом (нажми и говори, нажми ещё раз — стоп)" hidden>🎤</button>
             <button class="main" data-el="go">Перевести и вставить</button>
           </div>
           <div class="preview" data-el="preview"></div>
           <div class="status" data-el="status"></div>
-          <div class="hint">Ctrl+Enter — перевести. Отправляешь ты сам, кнопкой в чате. Панель двигается за заголовок.</div>
+          <div class="hint">🎤 — ответить голосом. Ctrl+Enter — перевести. Отправляешь ты сам, кнопкой в чате. Панель двигается за заголовок.</div>
         </div>
       </div>`;
     const $ = (name) => root.querySelector(`[data-el="${name}"]`);
@@ -92,6 +97,69 @@
       }
     });
     ['keyup', 'keypress'].forEach((t) => $('input').addEventListener(t, (e) => e.stopPropagation()));
+
+    // Голосовой ввод: встроенное распознавание речи Chrome.
+    // Говоришь → текст появляется в поле → после паузы сам переводится и вставляется в чат.
+    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    const SPEECH = { ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', de: 'de-DE', fr: 'fr-FR', es: 'es-ES', it: 'it-IT',
+      pt: 'pt-BR', pl: 'pl-PL', tr: 'tr-TR', nl: 'nl-NL', ja: 'ja-JP', zh: 'zh-CN', ko: 'ko-KR' };
+    const MIC_ERR = {
+      'not-allowed': 'Нет доступа к микрофону. Нажми на замок слева от адреса сайта → «Микрофон» → «Разрешить» и нажми 🎤 ещё раз.',
+      'service-not-allowed': 'Нет доступа к микрофону. Нажми на замок слева от адреса сайта → «Микрофон» → «Разрешить».',
+      'audio-capture': 'Микрофон не найден. Проверь, что он подключён.',
+      'network': 'Распознавание речи не работает без интернета. Проверь связь.',
+      'no-speech': 'Не услышал речь. Нажми 🎤 и говори громче.',
+    };
+    const stopMic = () => { if (rec) rec.stop(); };
+    if (Rec) {
+      $('mic').hidden = false;
+      $('mic').addEventListener('click', () => {
+        if (rec) return stopMic();
+        const r = new Rec();
+        rec = r;
+        const code = (getSpeechLang && getSpeechLang()) || 'ru';
+        r.lang = SPEECH[code] || code;
+        r.interimResults = true;
+        r.continuous = false;
+        const before = $('input').value.trim();
+        let finalText = '';
+        let error = '';
+        r.onresult = (e) => {
+          let interim = '';
+          finalText = '';
+          for (const res of e.results) {
+            if (res.isFinal) finalText += res[0].transcript;
+            else interim += res[0].transcript;
+          }
+          $('input').value = [before, (finalText + interim).trim()].filter(Boolean).join(' ');
+        };
+        r.onerror = (e) => { error = e.error || 'error'; };
+        r.onend = () => {
+          rec = null;
+          $('mic').classList.remove('on');
+          if (error && error !== 'aborted') {
+            $('status').textContent = MIC_ERR[error] || `Микрофон: ошибка (${error}).`;
+            $('status').classList.add('err');
+            return;
+          }
+          $('status').textContent = '';
+          $('status').classList.remove('err');
+          if (finalText.trim()) go();
+        };
+        try {
+          r.start();
+          $('mic').classList.add('on');
+          $('status').textContent = 'Говори… (нажми 🎤 ещё раз, чтобы остановить)';
+          $('status').classList.remove('err');
+        } catch (e) {
+          rec = null;
+          $('status').textContent = 'Микрофон не запустился: ' + e.message;
+          $('status').classList.add('err');
+        }
+      });
+    }
+
     $('collapse').addEventListener('click', () => box.classList.toggle('collapsed'));
     $('power').addEventListener('click', () => onToggle());
     $('settings').addEventListener('click', () => onSettings());
