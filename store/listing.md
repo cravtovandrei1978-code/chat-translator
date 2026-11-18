@@ -1,14 +1,14 @@
 # Тексты для страницы в Chrome Web Store
 
 ## Название
-Chat Translator — переводчик чатов
+Frog Chat Translator — переводчик чатов
 
 ## Краткое описание (до 132 символов)
 RU: Перевод сообщений в WhatsApp, Telegram, Discord и любом веб-чате прямо под оригиналом и ответ на языке собеседника.
 EN: Translate messages in WhatsApp, Telegram, Discord or any web chat right under the original and reply in your contact's language.
 
 ## Полное описание (RU)
-Переписываетесь с людьми, которые говорят на другом языке? Chat Translator переводит каждое входящее сообщение прямо под оригиналом, а ответ можно написать по-русски — расширение переведёт его и вставит в поле чата. Отправку вы нажимаете сами.
+Переписываетесь с людьми, которые говорят на другом языке? Frog Chat Translator переводит каждое входящее сообщение прямо под оригиналом, а ответ можно написать по-русски — расширение переведёт его и вставит в поле чата. Отправку вы нажимаете сами.
 
 Что умеет:
 • Перевод входящих сообщений под оригиналом (свои сообщения и эмодзи не трогает)
@@ -23,7 +23,7 @@ EN: Translate messages in WhatsApp, Telegram, Discord or any web chat right unde
 Готовая поддержка: WhatsApp Web, Telegram Web, Discord. На любом другом сайте с чатом (Instagram, Messenger и т.д.) перевод включается одной кнопкой: покажите кликом, где сообщения собеседника, и расширение запомнит.
 
 ## Full description (EN)
-Chatting with people who speak another language? Chat Translator translates every incoming message right under the original, and lets you write your reply in your own language — it translates it and puts it into the chat box. You press Send yourself.
+Chatting with people who speak another language? Frog Chat Translator translates every incoming message right under the original, and lets you write your reply in your own language — it translates it and puts it into the chat box. You press Send yourself.
 
 Features:
 • Incoming messages translated under the original (your own messages and emoji are skipped)

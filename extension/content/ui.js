@@ -14,7 +14,7 @@
       font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1d2433;
       background: #fff; border: 1px solid #c9d1e0; border-radius: 10px;
       box-shadow: 0 6px 24px rgba(0,0,0,.18); overflow: hidden; }
-    .head { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #2f6fde; color: #fff;
+    .head { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #1f9d55; color: #fff;
       cursor: move; user-select: none; }
     .title { font-weight: 600; flex: 1; }
     .lang { font-size: 12px; opacity: .9; }
@@ -23,10 +23,10 @@
     .collapsed .body { display: none; }
     textarea { width: 100%; box-sizing: border-box; min-height: 60px; resize: vertical; padding: 6px 8px;
       border: 1px solid #c9d1e0; border-radius: 6px; font: inherit; color: inherit; }
-    textarea:focus { outline: 2px solid #2f6fde55; border-color: #2f6fde; }
+    textarea:focus { outline: 2px solid #1f9d5555; border-color: #1f9d55; }
     .row { display: flex; gap: 6px; align-items: center; }
     select { font: inherit; padding: 3px; border: 1px solid #c9d1e0; border-radius: 6px; }
-    button.main { flex: 1; padding: 6px 10px; border: 0; border-radius: 6px; background: #2f6fde; color: #fff;
+    button.main { flex: 1; padding: 6px 10px; border: 0; border-radius: 6px; background: #1f9d55; color: #fff;
       font: inherit; font-weight: 600; cursor: pointer; }
     button.main:disabled { opacity: .6; cursor: default; }
     .preview { background: #f2f5fb; border-radius: 6px; padding: 6px 8px; white-space: pre-wrap; word-break: break-word; }
@@ -44,7 +44,7 @@
       <style>${STYLE}</style>
       <div class="box">
         <div class="head">
-          <span class="title">Переводчик</span>
+          <span class="title">🐸 Frog</span>
           <span class="lang" data-el="langInfo"></span>
           <button class="icon" data-el="pick" title="Показать, где сообщения собеседника" hidden>🎯</button>
           <button class="icon" data-el="settings" title="Настройки">⚙</button>

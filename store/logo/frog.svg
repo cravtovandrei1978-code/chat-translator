@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- облачко чата -->
+  <path d="M14 30 h100 a10 10 0 0 1 10 10 v58 a10 10 0 0 1 -10 10 h-58 l-18 16 v-16 h-24 a10 10 0 0 1 -10 -10 v-58 a10 10 0 0 1 10 -10z" fill="#1f9d55"/>
+  <!-- глаза-бугорки -->
+  <circle cx="40" cy="34" r="20" fill="#2ec27e"/>
+  <circle cx="88" cy="34" r="20" fill="#2ec27e"/>
+  <circle cx="40" cy="34" r="13" fill="#fff"/>
+  <circle cx="88" cy="34" r="13" fill="#fff"/>
+  <circle cx="43" cy="36" r="6.5" fill="#1b1f23"/>
+  <circle cx="91" cy="36" r="6.5" fill="#1b1f23"/>
+  <!-- морда -->
+  <ellipse cx="64" cy="74" rx="50" ry="28" fill="#2ec27e"/>
+  <!-- улыбка -->
+  <path d="M34 72 q30 24 60 0" fill="none" stroke="#14532d" stroke-width="6" stroke-linecap="round"/>
+  <!-- щёчки -->
+  <circle cx="26" cy="80" r="6" fill="#ff8fa3" opacity=".8"/>
+  <circle cx="102" cy="80" r="6" fill="#ff8fa3" opacity=".8"/>
+</svg>
