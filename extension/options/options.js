@@ -25,6 +25,7 @@
     $('key-deepl').value = s.keys.deepl;
     $('key-google').value = s.keys.google;
     $('key-claude').value = s.keys.claude;
+    $('key-pro').value = s.keys.pro;
     $('claudeModel').value = s.claudeModel;
     showProviderBlocks();
     $('cacheSize').textContent = await ctSend('cacheSize');
@@ -44,6 +45,7 @@
           deepl: $('key-deepl').value.trim(),
           google: $('key-google').value.trim(),
           claude: $('key-claude').value.trim(),
+          pro: $('key-pro').value.trim(),
         },
       },
     });
@@ -67,6 +69,21 @@
       status(`Работает: «${r.text}»`);
     } catch (e) {
       status(`Не работает: ${e.message}`, true);
+    }
+  });
+  $('buyPro').addEventListener('click', () => ctSend('buyPro'));
+  $('checkPro').addEventListener('click', async () => {
+    const el = $('proStatus');
+    try {
+      await save();
+      el.className = '';
+      el.textContent = 'Проверяю…';
+      const d = await ctSend('proStatus', { license: $('key-pro').value });
+      el.className = 'ok';
+      el.textContent = `Pro активен ✓ Использовано в этом месяце: ${d.used.toLocaleString()} из ${d.limit.toLocaleString()} символов`;
+    } catch (e) {
+      el.className = 'err';
+      el.textContent = e.message;
     }
   });
   $('clearCache').addEventListener('click', async () => {

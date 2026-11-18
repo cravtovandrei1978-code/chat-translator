@@ -4,7 +4,7 @@
   "private": true,
   "description": "Chrome-расширение: перевод веб-чатов на русский и ответы на языке собеседника",
   "scripts": {
-    "test": "node test/e2e.mjs",
+    "test": "node test/e2e.mjs && node test/pro.mjs",
     "build": "node scripts/build.mjs"
   },
   "devDependencies": {

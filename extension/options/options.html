@@ -28,13 +28,25 @@
     <h2>Сервис перевода</h2>
     <label>Сервис
       <select id="provider">
-        <option value="deepl">DeepL (рекомендуется)</option>
+        <option value="pro">Chat Translator Pro (без ключа, по подписке)</option>
+        <option value="deepl">DeepL (свой ключ, бесплатно)</option>
         <option value="google">Google Cloud Translation</option>
         <option value="claude">Claude (Anthropic)</option>
         <option value="test">Проверка без интернета (не переводит, только помечает)</option>
       </select>
     </label>
 
+    <div data-for="pro">
+      <p class="hint">Pro: не нужно получать ключи. Купи подписку, получишь код лицензии на почту, вставь его сюда.</p>
+      <label>Код лицензии Pro
+        <input type="password" id="key-pro" autocomplete="off" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
+      </label>
+      <div class="row">
+        <button id="buyPro" class="primary">Купить Pro</button>
+        <button id="checkPro">Проверить код</button>
+        <span id="proStatus"></span>
+      </div>
+    </div>
     <div data-for="deepl">
       <label>Ключ DeepL
         <input type="password" id="key-deepl" autocomplete="off" placeholder="xxxxxxxx-xxxx-…:fx">

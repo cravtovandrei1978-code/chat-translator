@@ -1,6 +1,7 @@
 // Фоновый скрипт: принимает запросы на перевод от страниц, ходит в API, кэширует.
 import { getSettings, saveSettings } from './settings.js';
 import { translateBatch } from './providers.js';
+import { PRO_API, PRO_BUY_URL } from './config.js';
 import { cacheKey, cacheGet, cacheSet, cacheClear, cacheSize } from './cache.js';
 
 async function translate({ texts, target, source }) {
@@ -36,7 +37,24 @@ const handlers = {
   clearCache: () => cacheClear(),
   cacheSize: () => cacheSize(),
   openOptions: () => chrome.runtime.openOptionsPage(),
+  buyPro: () => chrome.tabs.create({ url: PRO_BUY_URL }),
+  proStatus,
 };
+
+// Проверка кода лицензии Pro: сколько символов израсходовано в этом месяце.
+async function proStatus({ license }) {
+  const settings = await getSettings();
+  const res = await fetch(`${settings.proApi || PRO_API}/v1/license`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ license: (license || '').trim() }),
+  }).catch(() => null);
+  if (!res) throw new Error('Сервер Pro недоступен, попробуй позже');
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) throw new Error('Код неверный или подписка закончилась');
+  if (!res.ok) throw new Error(`Ошибка сервера Pro (${data.error || res.status})`);
+  return data;
+}
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   const fn = handlers[msg && msg.type];
@@ -61,7 +79,7 @@ const DYN_JS = [
   'content/ui.js',
   'content/main.js',
 ];
-const API_HOSTS = /deepl\.com|googleapis\.com|anthropic\.com/;
+const API_HOSTS = /deepl\.com|googleapis\.com|anthropic\.com|workers\.dev/;
 const scriptId = (pattern) => 'ct-' + pattern.replace(/[^a-z0-9]+/gi, '-');
 
 async function enableSite(pattern) {

@@ -3,14 +3,15 @@
 
 export const DEFAULT_SETTINGS = {
   enabled: true,
-  provider: 'deepl', // 'deepl' | 'google' | 'claude' | 'test'
+  provider: 'deepl', // 'deepl' | 'google' | 'claude' | 'pro' | 'test'
   targetLang: 'ru', // на какой язык переводим входящие
   replyLang: 'auto', // на какой язык переводим ответ; 'auto' = язык последнего входящего
   fallbackReplyLang: 'en', // если язык собеседника ещё неизвестен
   siteRules: {}, // универсальный режим: { 'host': { message: 'css' } }
   sites: [], // сайты, где человек включил перевод сам (origin)
   translit: true, // ответ, написанный латиницей, сначала переводим транслитом в кириллицу
-  keys: { deepl: '', google: '', claude: '' },
+  keys: { deepl: '', google: '', claude: '', pro: '' },
+  proApi: '', // адрес сервера Pro (пусто = из config.js); меняется только для тестов
   claudeModel: 'claude-opus-5-5',
 };
 

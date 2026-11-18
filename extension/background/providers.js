@@ -2,6 +2,8 @@
 // массив { text, src } той же длины (src = определённый язык оригинала, если провайдер его знает).
 // Коды языков внутри расширения: двухбуквенные ISO в нижнем регистре ('en', 'ru', 'de'...).
 
+import { PRO_API } from './config.js';
+
 export class TranslateError extends Error {
   constructor(message, { code = 'error' } = {}) {
     super(message);
@@ -146,6 +148,26 @@ async function claude(texts, target, source, key, model) {
   return out.map((t) => ({ text: t.text, src: (t.src || '').slice(0, 2).toLowerCase() }));
 }
 
+// ---------- Pro: наш сервер, ключ не нужен, только код лицензии ----------
+async function pro(texts, target, source, license, api) {
+  if (!license) throw new TranslateError('Введи код лицензии Pro в настройках', { code: 'nokey' });
+  let res;
+  try {
+    res = await fetch(`${api || PRO_API}/v1/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ license: license.trim(), texts, target, source }),
+    });
+  } catch (_) {
+    throw new TranslateError('Сервер Pro недоступен, попробуй позже');
+  }
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) throw new TranslateError('Код лицензии Pro неверный или подписка закончилась', { code: 'auth' });
+  if (res.status === 429) throw new TranslateError('Закончился месячный лимит Pro', { code: 'quota' });
+  if (!res.ok) throw new TranslateError(`Ошибка сервера Pro (${data.error || res.status})`);
+  return data.translations;
+}
+
 // ---------- Проверка (без интернета и без ключа) ----------
 // Нужен, чтобы проверить, что расширение находит сообщения и поле ввода на сайте.
 async function testProvider(texts, target) {
@@ -163,6 +185,8 @@ export async function translateBatch(settings, texts, target, source) {
       return google(texts, target, source, settings.keys.google);
     case 'claude':
       return claude(texts, target, source, settings.keys.claude, settings.claudeModel);
+    case 'pro':
+      return pro(texts, target, source, settings.keys.pro, settings.proApi);
     case 'test':
       return testProvider(texts, target);
     default:
