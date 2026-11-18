@@ -23,6 +23,10 @@ async function main($) {
     ctSend('saveSettings', { patch: { replyLang: $('replyLang').value } })
   );
   $('options').addEventListener('click', () => chrome.runtime.openOptionsPage());
+  $('bug').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: window.CT_BUG_URL });
+  });
 
   // ---- эта вкладка ----
   // Для теста можно передать вкладку: popup.html?tab=<id>

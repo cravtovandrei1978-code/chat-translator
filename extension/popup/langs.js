@@ -22,3 +22,6 @@ window.ctSend = function (type, payload = {}) {
     });
   });
 };
+
+// Куда сообщать об ошибках (публичный репозиторий только для жалоб и вопросов).
+window.CT_BUG_URL = 'https://github.com/cravtovandrei1978-code/chat-translator-support/issues/new';

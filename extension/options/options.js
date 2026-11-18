@@ -91,5 +91,6 @@
     $('cacheSize').textContent = await ctSend('cacheSize');
   });
 
+  $('bug').href = window.CT_BUG_URL;
   load();
 })();
