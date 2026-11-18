@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Chat Translator",
+  "name": "Frog Chat Translator",
   "short_name": "ChatTranslator",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Переводит сообщения веб-чатов на русский и помогает отвечать на языке собеседника.",
   "icons": {
     "16": "icons/icon16.png",
@@ -56,7 +56,7 @@
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "Chat Translator"
+    "default_title": "Frog Chat Translator"
   },
   "options_page": "options/options.html",
   "optional_host_permissions": [

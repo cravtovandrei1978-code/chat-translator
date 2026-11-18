@@ -10,7 +10,7 @@ label.row, .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
 select, input[type="text"], input[type="password"] { display: block; width: 100%; box-sizing: border-box; margin-top: 4px;
   padding: 6px 8px; border: 1px solid #c9d1e0; border-radius: 6px; font: inherit; }
 button { padding: 6px 12px; border: 1px solid #c9d1e0; border-radius: 6px; background: #f4f6fa; font: inherit; cursor: pointer; }
-button.primary { background: #2f6fde; border-color: #2f6fde; color: #fff; font-weight: 600; }
+button.primary { background: #1f9d55; border-color: #1f9d55; color: #fff; font-weight: 600; }
 .hint { font-size: 12px; color: #6b7487; margin: 4px 0 8px; }
 .ok { color: #1e8449; }
 .site { border-top: 1px solid #dde3ee; margin-top: 10px; padding-top: 6px; }
