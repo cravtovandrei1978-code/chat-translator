@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="common.css">
+</head>
+<body class="popup">
+  <h2>Chat Translator</h2>
+  <label class="row"><input type="checkbox" id="enabled"> Переводить чат</label>
+  <label>Мой ответ на
+    <select id="replyLang" data-langs data-auto></select>
+  </label>
+  <p class="hint">Сервис: <b id="provider">…</b> <span id="keyWarn" class="err"></span></p>
+  <div id="site" class="site">
+    <p class="hint" id="siteInfo">Проверяю эту вкладку…</p>
+    <button id="siteOn" hidden>Включить перевод на этом сайте</button>
+    <button id="siteOff" hidden>Выключить на этом сайте</button>
+  </div>
+  <div class="row">
+    <button id="options" class="primary">Настройки</button>
+  </div>
+  <p class="hint"><a href="#" id="bug">Сообщить об ошибке</a></p>
+  <script src="langs.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

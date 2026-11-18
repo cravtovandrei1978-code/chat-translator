@@ -1,0 +1,17 @@
+/* Перевод под сообщением чата */
+.ct-tr {
+  display: block;
+  margin: 2px 0 4px;
+  padding: 2px 6px;
+  border-left: 3px solid #2f6fde;
+  background: rgba(47, 111, 222, 0.08);
+  color: inherit;
+  font-style: italic;
+  font-size: 0.95em;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+html.ct-off .ct-tr {
+  display: none !important;
+}

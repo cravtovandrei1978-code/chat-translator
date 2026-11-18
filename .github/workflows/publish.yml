@@ -1,0 +1,42 @@
+# После слияния в main: тесты → сборка → загрузка в Chrome Web Store → на проверку.
+# Публикует, только если в manifest.json поднята версия.
+name: Publish to Chrome Web Store
+on:
+  push:
+    branches: [main]
+    paths: ['extension/**']
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Версия поднята?
+        id: ver
+        run: |
+          NEW=$(node -p "require('./extension/manifest.json').version")
+          OLD=$(git show HEAD~1:extension/manifest.json 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync(0)).version" || echo none)
+          echo "new=$NEW old=$OLD"
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
+          if [ "$NEW" != "$OLD" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "go=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.ver.outputs.go == '1'
+        with:
+          node-version: 22
+      - name: Тесты
+        if: steps.ver.outputs.go == '1'
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npm test
+      - name: Сборка
+        if: steps.ver.outputs.go == '1'
+        run: node scripts/build.mjs
+      - name: Загрузка в магазин
+        if: steps.ver.outputs.go == '1'
+        env:
+          CWS_SERVICE_ACCOUNT: ${{ secrets.CWS_SERVICE_ACCOUNT }}
+        run: node scripts/publish.mjs dist/chat-translator-store-${{ steps.ver.outputs.version }}.zip

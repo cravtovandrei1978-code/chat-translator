@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="ct-adapter" content="telegram">
+  <title>Тестовая копия Telegram Web (K)</title>
+  <style>
+    body { margin: 0; font: 14px system-ui, sans-serif; background: #8fb37d; }
+    .bubbles-inner { display: flex; flex-direction: column; gap: 6px; padding: 16px 10%; height: calc(100vh - 80px); overflow: auto; }
+    .bubble { max-width: 60%; background: #fff; border-radius: 12px; padding: 6px 10px; }
+    .bubble.is-out { align-self: flex-end; background: #e3fee0; }
+    .time { font-size: 11px; color: #888; margin-left: 6px; }
+    .chat-input { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 10%; background: #fff; }
+    .input-message-input { border: 1px solid #ccc; border-radius: 8px; padding: 8px; min-height: 18px; }
+    .input-field-input-fake { display: none; }
+  </style>
+</head>
+<body>
+  <div class="bubbles-inner" id="list">
+    <div class="bubble service is-date"><div class="service-msg">Today</div></div>
+  </div>
+  <div class="chat-input">
+    <div class="input-message-input" contenteditable="true" data-peer-id="1"></div>
+    <div class="input-message-input input-field-input-fake" contenteditable="true"></div>
+  </div>
+  <script>
+    let mid = 0;
+    window.addMessage = (text, dir = 'in') => {
+      const b = document.createElement('div');
+      b.className = 'bubble ' + (dir === 'in' ? 'is-in' : 'is-out');
+      b.dataset.mid = ++mid;
+      b.innerHTML = '<div class="bubble-content"><div class="message"><span class="translatable-message"></span><span class="time"><span class="i18n">21:0' + mid + '</span></span></div></div>';
+      b.querySelector('.translatable-message').textContent = text;
+      document.getElementById('list').appendChild(b);
+    };
+    addMessage('Hello from Telegram!');
+    addMessage('Привет!', 'out');
+    addMessage('Do you like the new photos?');
+  </script>
+</body>
+</html>

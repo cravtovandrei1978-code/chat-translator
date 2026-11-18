@@ -1,0 +1,21 @@
+name = "chat-translator-pro"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+PADDLE_ENV = "sandbox"            # после одобрения Paddle: "production"
+PADDLE_CLIENT_TOKEN = ""          # Paddle → Developer tools → Authentication → client-side token
+PADDLE_PRICE_ID = ""              # Paddle → Catalog → Products → цена (pri_…)
+SELLER_NAME = ""                  # имя продавца, как в аккаунте Paddle
+CONTACT_EMAIL = ""
+MONTHLY_CHARS = "500000"
+
+# KV для счётчиков: id появится после `wrangler kv namespace create USAGE`
+# [[kv_namespaces]]
+# binding = "USAGE"
+# id = "..."
+
+# Секреты задаются командами, в файл не пишем:
+#   wrangler secret put DEEPL_KEY
+#   wrangler secret put PADDLE_API_KEY
+#   wrangler secret put LICENSE_SECRET

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Эта метка включает адаптер WhatsApp на локальной странице -->
+  <meta name="ct-adapter" content="whatsapp">
+  <title>Тестовая копия чата (WhatsApp Web)</title>
+  <style>
+    body { margin: 0; font: 14px system-ui, sans-serif; background: #efeae2; }
+    #app { display: flex; height: 100vh; }
+    #side { width: 30%; background: #fff; border-right: 1px solid #ddd; padding: 10px; }
+    #main { flex: 1; display: flex; flex-direction: column; }
+    header { background: #f0f2f5; padding: 10px; }
+    .msgs { flex: 1; overflow-y: auto; padding: 12px 8%; display: flex; flex-direction: column; gap: 4px; }
+    #list > [role=row] { width: 100%; }
+    .bubble { max-width: 65%; padding: 6px 8px; border-radius: 8px; box-shadow: 0 1px .5px rgba(0,0,0,.13); }
+    .b-in { background: #fff; }
+    .b-out { background: #d9fdd3; }
+    footer { background: #f0f2f5; padding: 8px; display: flex; gap: 8px; }
+    footer [contenteditable] { flex: 1; background: #fff; border-radius: 8px; padding: 8px; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="side">Чаты<br><button id="add">+ входящее</button></div>
+    <div id="main">
+      <header>Alex</header>
+      <div class="msgs" id="list" data-testid="conversation-panel-messages"></div>
+      <footer>
+        <div contenteditable="true" role="textbox" data-tab="10" data-testid="conversation-compose-box-input"></div>
+        <button id="send">Send</button>
+      </footer>
+    </div>
+  </div>
+  <script>
+    const list = document.getElementById('list');
+    // Структура как у WhatsApp (ноябрь 2026): классов message-in/out нет,
+    // входящее/своё отличается только положением пузыря (слева/справа).
+    let seq = 0;
+    function addMessage(text, dir = 'in', kind = 'text') {
+      const row = document.createElement('div');
+      row.setAttribute('role', 'row');
+      const msg = document.createElement('div');
+      msg.setAttribute('data-testid', 'conv-msg-' + (++seq));
+      msg.setAttribute('data-id', 'MSG' + seq);
+      msg.dataset.dir = dir; // только для теста, у WhatsApp этого атрибута нет
+      msg.style.display = 'flex';
+      msg.style.justifyContent = dir === 'in' ? 'flex-start' : 'flex-end';
+      const bubble = document.createElement('div');
+      bubble.setAttribute('data-testid', 'msg-container');
+      bubble.className = 'bubble ' + (dir === 'in' ? 'b-in' : 'b-out');
+      if (kind === 'text') {
+        bubble.innerHTML =
+          '<div class="copyable-text" data-pre-plain-text="[22:10, 17.11.2026] Alex: ">' +
+          '<div><span dir="ltr" data-testid="selectable-text" class="selectable-text copyable-text"><span></span></span></div></div>' +
+          '<div data-testid="msg-meta"><span>22:10</span></div>';
+        bubble.querySelector('.selectable-text > span').textContent = text;
+      } else {
+        bubble.innerHTML = '<div data-testid="image-thumb"><img alt="photo" width="120" height="80"></div>';
+      }
+      msg.appendChild(bubble);
+      row.appendChild(msg);
+      list.appendChild(row);
+      list.scrollTop = list.scrollHeight;
+    }
+    window.addMessage = addMessage;
+    addMessage('Hey! Are you free tonight?');
+    addMessage('Конечно, давай!', 'out');
+    addMessage('', 'in', 'photo');
+    addMessage('😂😂');
+    addMessage('Great, see you at 8 then');
+    const input = document.querySelector('footer [contenteditable]');
+    window.inputEvents = 0;
+    input.addEventListener('input', () => window.inputEvents++);
+    document.getElementById('add').onclick = () => addMessage('Did you get my photo?');
+    document.getElementById('send').onclick = () => {
+      if (input.textContent.trim()) { addMessage(input.textContent, 'out'); input.textContent = ''; }
+    };
+  </script>
+</body>
+</html>
