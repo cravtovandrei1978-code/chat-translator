@@ -1,5 +1,13 @@
 (async function () {
   const $ = (id) => document.getElementById(id);
+  try {
+    await main($);
+  } catch (e) {
+    $('siteInfo').textContent = `Ошибка: ${e.message}`;
+  }
+})();
+
+async function main($) {
   const NAMES = { deepl: 'DeepL', google: 'Google', claude: 'Claude', pro: 'Pro', test: 'Проверка (без перевода)' };
   ctFillLangSelects();
   const s = await ctSend('getSettings');
@@ -17,7 +25,12 @@
   $('options').addEventListener('click', () => chrome.runtime.openOptionsPage());
 
   // ---- эта вкладка ----
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  // Для теста можно передать вкладку: popup.html?tab=<id>
+  const forced = Number(new URLSearchParams(location.search).get('tab'));
+  let tab = null;
+  try {
+    tab = forced ? await chrome.tabs.get(forced) : (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+  } catch (_) {}
   let url = null;
   try {
     url = new URL(tab.url);
@@ -27,11 +40,12 @@
     return;
   }
   const pattern = `${url.protocol}//${url.host}/*`;
-  let status = null;
-  try {
-    status = await chrome.tabs.sendMessage(tab.id, { type: 'ping' });
-  } catch (_) {}
-  const userSite = s.sites.includes(pattern);
+  // Спрашиваем страницу, работает ли на ней расширение. Если ответа нет за секунду — считаем, что не работает.
+  const status = await Promise.race([
+    chrome.tabs.sendMessage(tab.id, { type: 'ping' }).catch(() => null),
+    new Promise((r) => setTimeout(() => r(null), 1000)),
+  ]);
+  const userSite = (s.sites || []).includes(pattern);
   if (status && !status.generic) {
     $('siteInfo').textContent = `Работает на этой вкладке: ${status.adapter}.`;
   } else if (status || userSite) {
@@ -43,12 +57,24 @@
   }
   $('siteOn').addEventListener('click', async () => {
     // Chrome спросит разрешение на этот сайт; дальше всё сделает фоновый скрипт.
-    const ok = await chrome.permissions.request({ origins: [pattern] });
-    if (ok) {
+    let ok = false;
+    try {
+      ok = await chrome.permissions.request({ origins: [pattern] });
+    } catch (e) {
+      $('siteInfo').textContent = `Не получилось: ${e.message}`;
+      return;
+    }
+    if (!ok) {
+      $('siteInfo').textContent = 'Без разрешения перевод на этом сайте не включить.';
+      return;
+    }
+    try {
       await ctSend('enableSite', { pattern });
       $('siteInfo').textContent = `Включено на ${url.host}. Нажми 🎯 на панели и кликни по сообщению собеседника.`;
       $('siteOn').hidden = true;
       $('siteOff').hidden = false;
+    } catch (e) {
+      $('siteInfo').textContent = `Не получилось включить: ${e.message}`;
     }
   });
   $('siteOff').addEventListener('click', async () => {
@@ -57,4 +83,4 @@
     $('siteOff').hidden = true;
     $('siteOn').hidden = false;
   });
-})();
+}
